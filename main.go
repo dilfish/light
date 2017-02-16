@@ -107,9 +107,11 @@ type staticHandler struct {
 
 func ReportIP() {
 	for {
-		_, err := http.PostForm("https://dil.fish/util/homeip", url.Values{"key": {"Value"}, "id": {"123"}})
+		resp, err := http.PostForm("https://dil.fish/util/homeip", url.Values{"key": {"Value"}, "id": {"123"}})
 		if err != nil {
 			fmt.Println("set home ip", err)
+		} else {
+			resp.Body.Close()
 		}
 		time.Sleep(time.Second)
 	}
