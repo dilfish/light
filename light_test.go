@@ -6,7 +6,7 @@ import (
 
 func TestReadFile(t *testing.T) {
 	bt, err := ReadFile("testdata/ReadFile.txt")
-	if err != nil || string(bt) != "abcd" {
+	if err != nil || string(bt) != "abcd\n" {
 		t.Error("expect nil and abcd, got", string(bt), err)
 	}
 }
