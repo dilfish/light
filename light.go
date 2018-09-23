@@ -70,7 +70,7 @@ func (rh *rootHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func readFile(fn string) ([]byte, error) {
+func ReadFile(fn string) ([]byte, error) {
 	fmt.Println("read file", fn)
 	file, err := os.Open(fn)
 	if err != nil {
@@ -83,11 +83,11 @@ func readFile(fn string) ([]byte, error) {
 func Handler() error {
 	var rh rootHandler
 	var sh staticHandler
-	page, err := readFile("index.html")
+	page, err := ReadFile("index.html")
 	if err != nil {
 		return err
 	}
-	fav, err := readFile("ico.ico")
+	fav, err := ReadFile("ico.ico")
 	if err != nil {
 		return err
 	}
