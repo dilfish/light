@@ -1,4 +1,4 @@
-package main
+package light
 
 import (
 	"fmt"
@@ -107,7 +107,7 @@ type staticHandler struct {
 
 func ReportIP() {
 	for {
-		resp, err := http.PostForm("https://dil.fish/util/homeip", url.Values{"key": {"Value"}, "id": {"123"}})
+		resp, err := http.PostForm("https://libsm.com/util/homeip", url.Values{"key": {"Value"}, "id": {"123"}})
 		if err != nil {
 			fmt.Println("set home ip", err)
 		} else {
@@ -115,9 +115,4 @@ func ReportIP() {
 		}
 		time.Sleep(time.Second)
 	}
-}
-
-func main() {
-	go ReportIP()
-	panic(Handler())
 }
