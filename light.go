@@ -5,9 +5,7 @@ import (
 	rpio "github.com/stianeikeland/go-rpio"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"os"
-	"time"
 )
 
 const PinOffset = 14
