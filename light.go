@@ -65,12 +65,6 @@ func (static *staticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Write(static.Page)
 }
 
-
-func (rh *rootHandler) Close () {
-    close(rh.cStatus)
-}
-
-
 func (rh *rootHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("request is", r.URL.Path, r.Method)
     uri := r.URL.Path
@@ -105,17 +99,17 @@ func ReadFile(fn string) ([]byte, error) {
 	return ioutil.ReadAll(file)
 }
 
-func Handler() (http.Handler, error) {
+func Handler(index, ico string) (http.Handler, error) {
 	var rh rootHandler
 	var sh staticHandler
     rh.cStatus = make(chan bool, 1)
     go rh.onOff()
     mux := http.NewServeMux()
-	page, err := ReadFile("index.html")
+	page, err := ReadFile(index)
 	if err != nil {
 		return nil, err
 	}
-	fav, err := ReadFile("ico.ico")
+	fav, err := ReadFile(ico)
 	if err != nil {
 		return nil, err
 	}
@@ -133,16 +127,4 @@ type rootHandler struct{
 type staticHandler struct {
 	Page []byte
 	Fav  []byte
-}
-
-func ReportIP() {
-	for {
-		resp, err := http.PostForm("https://libsm.com/util/homeip", url.Values{"key": {"Value"}, "id": {"123"}})
-		if err != nil {
-			fmt.Println("set home ip", err)
-		} else {
-			resp.Body.Close()
-		}
-		time.Sleep(time.Second)
-	}
 }

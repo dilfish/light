@@ -6,8 +6,7 @@ import (
 )
 
 func main() {
-	go light.ReportIP()
-    mux, err := light.Handler()
+    mux, err := light.Handler("../../index.html", "../../ico.ico")
     if err != nil {
         panic(err)
     }

@@ -52,7 +52,15 @@ func (c *Case) Ico (r gofight.HTTPResponse, rq gofight.HTTPRequest) {
 
 func TestHandler(t *testing.T) {
     DoTest()
-    h, err := Handler()
+    h, err := Handler("a", "b")
+    if err == nil {
+        t.Error("open empty 1")
+    }
+    h, err = Handler("index.html", "b")
+    if err == nil {
+        t.Error("open empty 2")
+    }
+    h, err = Handler("index.html", "ico.ico")
     if err != nil {
         t.Error("get handler", err)
     }
