@@ -13,53 +13,78 @@ import (
 const PinOffset = 14
 
 var Status = false
+var TestMode = false
 
-func on() error {
-	err := rpio.Open()
-	if err != nil {
-		fmt.Println("open error", err)
-		return err
-	}
-	pin := rpio.Pin(PinOffset)
-	pin.Output()
-	pin.High() // Low()
-	rpio.Close()
-	Status = true
-	return nil
+
+func SetTestMode(set bool) {
+    TestMode = set
 }
 
-func off() error {
-	err := rpio.Open()
-	if err != nil {
-		return err
-	}
-	pin := rpio.Pin(PinOffset)
-	pin.Output()
-	pin.Low() // close
-	rpio.Close()
-	Status = false
-	return nil
+
+func (rh *rootHandler) onOff() {
+    for {
+        set, ok := <-rh.cStatus
+        if ok == false {
+            break
+        }
+        if TestMode == true {
+            continue
+        }
+        err := rpio.Open()
+        if err != nil {
+            fmt.Println("open rpio", err)
+            continue
+        }
+        pin := rpio.Pin(PinOffset)
+        pin.Output()
+        if set == true {
+            pin.High()
+        } else {
+            pin.Low()
+        }
+        rpio.Close()
+    }
+}
+
+func (rh *rootHandler) on() {
+    Status = true
+    rh.cStatus <-true
+}
+
+func (rh *rootHandler) off() {
+    Status = false
+    rh.cStatus <-false
 }
 
 func (static *staticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.RequestURI == "/favicon.ico" {
+    uri := r.URL.Path
+	if uri == "/favicon.ico" {
 		w.Write(static.Fav)
 		return
 	}
 	w.Write(static.Page)
 }
 
+
+func (rh *rootHandler) Close () {
+    close(rh.cStatus)
+}
+
+
 func (rh *rootHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("request is", r.RequestURI, r.Method)
-	if r.RequestURI == "/api/on" {
-		go on()
+	fmt.Println("request is", r.URL.Path, r.Method)
+    uri := r.URL.Path
+	if uri == "/api/on" {
+		rh.on()
+        w.Write([]byte("ok"))
 		return
 	}
-	if r.RequestURI == "/api/off" {
-		go off()
+	if uri == "/api/off" {
+		rh.off()
+        w.Write([]byte("ok"))
 		return
 	}
-	if r.RequestURI == "/api/status" {
+	if uri == "/api/status" {
 		var status string
 		if Status == true {
 			status = "on"
@@ -80,26 +105,31 @@ func ReadFile(fn string) ([]byte, error) {
 	return ioutil.ReadAll(file)
 }
 
-func Handler() error {
+func Handler() (http.Handler, error) {
 	var rh rootHandler
 	var sh staticHandler
+    rh.cStatus = make(chan bool, 1)
+    go rh.onOff()
+    mux := http.NewServeMux()
 	page, err := ReadFile("index.html")
 	if err != nil {
-		return err
+		return nil, err
 	}
 	fav, err := ReadFile("ico.ico")
 	if err != nil {
-		return err
+		return nil, err
 	}
 	sh.Page = page
 	sh.Fav = fav
-	http.Handle("/api/", &rh)
-	http.Handle("/", &sh)
-	fmt.Println("listen on 80")
-	return http.ListenAndServe(":80", nil)
+	mux.Handle("/api/", &rh)
+	mux.Handle("/", &sh)
+    return mux, nil
 }
 
-type rootHandler struct{}
+type rootHandler struct{
+    cStatus chan bool
+}
+
 type staticHandler struct {
 	Page []byte
 	Fav  []byte
