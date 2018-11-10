@@ -1,3 +1,5 @@
+// Copyright 2018 Sean.ZH
+
 package light
 
 import (
@@ -8,12 +10,16 @@ import (
 	"os"
 )
 
+// PinOffset record raspi pin number
 const PinOffset = 14
 
+// Status is on or off of a light
 var Status = false
+// TestMode just set vars and do not send current to board
 var TestMode = false
 
 
+// SetTestMode set TestMode
 func SetTestMode(set bool) {
     TestMode = set
 }
@@ -54,6 +60,7 @@ func (rh *rootHandler) off() {
     rh.cStatus <-false
 }
 
+// ServeHTTP holds favicon and index page
 func (static *staticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     uri := r.URL.Path
 	if uri == "/favicon.ico" {
@@ -63,6 +70,7 @@ func (static *staticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Write(static.Page)
 }
 
+// ServeHTTP holds on and off api
 func (rh *rootHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("request is", r.URL.Path, r.Method)
     uri := r.URL.Path
@@ -87,6 +95,7 @@ func (rh *rootHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// ReadFile read html page
 func ReadFile(fn string) ([]byte, error) {
 	fmt.Println("read file", fn)
 	file, err := os.Open(fn)
@@ -97,6 +106,7 @@ func ReadFile(fn string) ([]byte, error) {
 	return ioutil.ReadAll(file)
 }
 
+// Handler handle http request for the light
 func Handler(index, ico string) (http.Handler, error) {
 	var rh rootHandler
 	var sh staticHandler
