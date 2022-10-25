@@ -1,5 +1,5 @@
 # light
-repo for raspberry pi
+repo for raspberry pi controlled light
 
 [![Build Status](https://travis-ci.org/dilfish/light.svg?branch=master)](https://travis-ci.org/dilfish/light)
 [![codecov](https://codecov.io/gh/dilfish/light/branch/master/graph/badge.svg)](https://codecov.io/gh/dilfish/light)
